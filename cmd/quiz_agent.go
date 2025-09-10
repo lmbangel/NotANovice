@@ -7,13 +7,10 @@ package cmd
 //			For example, 'How many times is Jesus recorded to be crying in the bible'.
 //		"
 
+func HandleCreateNewQnA() {
 
-
-func HandleCreateNewQnA(){
-	
 }
 
-
-func HandleGenerateQuiz(){
+func HandleGenerateQuiz() {
 
 }

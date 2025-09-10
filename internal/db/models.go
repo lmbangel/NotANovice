@@ -40,11 +40,12 @@ type Question struct {
 }
 
 type Quiz struct {
-	ID       int64
-	QID      int64
-	AID      int64
-	Date     sql.NullTime
-	IsActive sql.NullBool
+	ID          int64
+	QID         int64
+	AID         int64
+	Date        sql.NullTime
+	IsActive    sql.NullBool
+	OptionsJson string
 }
 
 type User struct {

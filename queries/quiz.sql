@@ -8,10 +8,14 @@ SELECT * FROM questions WHERE id = ?;
 -- name: CreateUser :one
 INSERT INTO users (username, email) VALUES (?, ?)
 RETURNING *;
--- name: GetUsers :one
+-- name: GetUsers :many
 SELECT * FROM users;
+
 -- name: GetUserByID :one
 SELECT * FROM users WHERE id = ?;
+
+-- name: GetUserByUsername :one
+SELECT * FROM users where username = ?;
 
 -- name: RecordAttempt :one
 INSERT INTO attempts (user_id, quiz_id, answer, is_correct)

@@ -86,7 +86,10 @@ func HandleCreateNewUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		panic(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]string{err.Error()})
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -143,6 +146,38 @@ func HandleGetUserByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
+	var u db.User
+
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+		panic(err)
+	}
+	conn, err := sql.Open("sqlite3", "./quiz.db")
+	if err != nil {
+		panic(err)
+	}
+
+	queries := db.New(conn)
+
+	user, err := queries.GetUserByUsername(context.Background(), u.Username)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "User  not found, click sign up to create account.",
+			})
+			return
+		}
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
+
+}
+
 func main() {
 	mux := chi.NewRouter()
 
@@ -151,6 +186,7 @@ func main() {
 		r.Get("/questions", HandleGetQuestions)
 		r.Post("/questions/{id}/answer", HandleAnswersToQuestions)
 
+		r.Post("/login", HandleLogin)
 		r.Group(func(r chi.Router) {
 			r.Get("/users", HandleGetUsers)
 			r.Get("/users/{id}", HandleGetUserByID)

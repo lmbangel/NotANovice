@@ -88,12 +88,12 @@ func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
-const getUsers = `-- name: GetUsers :one
-SELECT id, username, email, timestamp FROM users
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, email, timestamp FROM users where username = ?
 `
 
-func (q *Queries) GetUsers(ctx context.Context) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUsers)
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -102,6 +102,38 @@ func (q *Queries) GetUsers(ctx context.Context) (User, error) {
 		&i.Timestamp,
 	)
 	return i, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT id, username, email, timestamp FROM users
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Email,
+			&i.Timestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const recordAttempt = `-- name: RecordAttempt :one
