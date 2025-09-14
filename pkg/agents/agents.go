@@ -26,6 +26,13 @@ type Response struct {
 	Done      bool      `json:"done"`
 }
 
+type ReponseFormat struct {
+	Message  string             `json:"message"`
+	Question string             `json:"question"`
+	Answer   string             `json:"answer"`
+	Options  *map[string]string `json:"options"`
+}
+
 type Ollama struct {
 	Url     string   `json:"url"`
 	Request *Request `json:"request"`
