@@ -40,3 +40,18 @@ func GetAttempts() (*[]db.Attempt, error) {
 	}
 	return &a, nil
 }
+
+func GetAttemptByID(id int64) (*db.Attempt, error) {
+	conn, err := sql.Open("sqlite", "./quiz.db")
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.New(conn)
+	a, err := q.GetAttemptByID(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &a, nil
+}

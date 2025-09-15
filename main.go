@@ -91,6 +91,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Get("/attempts", handlers.HandleGetAttempts)
 			r.Get("/attempts/{id}", handlers.HandleGetAttemptByID)
+			r.Post("/attempts", handlers.HandleCreateNewAttempt)
 		})
 
 		r.Group(func(r chi.Router) {

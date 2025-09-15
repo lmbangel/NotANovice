@@ -16,8 +16,8 @@ RETURNING id, question, answer, timestamp, is_active
 `
 
 type CreateQuestionParams struct {
-	Question string
-	Answer   string
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) (Question, error) {
@@ -39,8 +39,8 @@ RETURNING id, username, email, timestamp
 `
 
 type CreateUserParams struct {
-	Username string
-	Email    string
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -50,6 +50,24 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.Username,
 		&i.Email,
+		&i.Timestamp,
+	)
+	return i, err
+}
+
+const getAttemptByID = `-- name: GetAttemptByID :one
+SELECT id, user_id, quiz_id, answer, is_correct, timestamp FROM attempts WHERE id = ?
+`
+
+func (q *Queries) GetAttemptByID(ctx context.Context, id int64) (Attempt, error) {
+	row := q.db.QueryRowContext(ctx, getAttemptByID, id)
+	var i Attempt
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.QuizID,
+		&i.Answer,
+		&i.IsCorrect,
 		&i.Timestamp,
 	)
 	return i, err
@@ -177,10 +195,10 @@ RETURNING id, user_id, quiz_id, answer, is_correct, timestamp
 `
 
 type RecordAttemptParams struct {
-	UserID    int64
-	QuizID    int64
-	Answer    string
-	IsCorrect sql.NullBool
+	UserID    int64        `json:"user_id"`
+	QuizID    int64        `json:"quiz_id"`
+	Answer    string       `json:"answer"`
+	IsCorrect sql.NullBool `json:"is_correct"`
 }
 
 func (q *Queries) RecordAttempt(ctx context.Context, arg RecordAttemptParams) (Attempt, error) {
@@ -211,8 +229,8 @@ SET total_score = total_score + excluded.total_score,
 `
 
 type UpdateLeaderboardParams struct {
-	UserID     int64
-	TotalScore sql.NullInt64
+	UserID     int64         `json:"user_id"`
+	TotalScore sql.NullInt64 `json:"total_score"`
 }
 
 func (q *Queries) UpdateLeaderboard(ctx context.Context, arg UpdateLeaderboardParams) error {

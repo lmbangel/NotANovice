@@ -1,6 +1,7 @@
 package attempt
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 
@@ -37,6 +38,22 @@ func TestGetAttempts(t *testing.T) {
 
 		if reflect.TypeOf(got) != reflect.TypeOf(want) {
 			t.Errorf("Error: wanted a slice of db.Attempt, i.e []db.Attempt. Received %s", reflect.TypeOf(got))
+		}
+	})
+	t.Run("Test getting attempt by ID", func(t *testing.T) {
+		got, err := GetAttemptByID(int64(1))
+		want := &db.Attempt{
+			ID: 1,
+		}
+
+		if err != nil {
+			t.Errorf("Error: Could not create an attempt;  %s", err.Error())
+		}
+
+		if got.ID != want.ID {
+			g, _ := json.Marshal(got)
+			w, _ := json.Marshal(want)
+			t.Errorf("Error: got %s, was expecting %s", g, w)
 		}
 	})
 }

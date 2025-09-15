@@ -9,48 +9,48 @@ import (
 )
 
 type Answer struct {
-	ID        int64
-	Answer    string
-	Timestamp sql.NullTime
-	IsActive  sql.NullBool
+	ID        int64        `json:"id"`
+	Answer    string       `json:"answer"`
+	Timestamp sql.NullTime `json:"timestamp"`
+	IsActive  sql.NullBool `json:"is_active"`
 }
 
 type Attempt struct {
-	ID        int64
-	UserID    int64
-	QuizID    int64
-	Answer    string
-	IsCorrect sql.NullBool
-	Timestamp sql.NullTime
+	ID        int64        `json:"id"`
+	UserID    int64        `json:"user_id"`
+	QuizID    int64        `json:"quiz_id"`
+	Answer    string       `json:"answer"`
+	IsCorrect sql.NullBool `json:"is_correct"`
+	Timestamp sql.NullTime `json:"timestamp"`
 }
 
 type LeaderBoard struct {
-	ID          int64
-	UserID      int64
-	TotalScore  sql.NullInt64
-	LastUpdated sql.NullTime
+	ID          int64         `json:"id"`
+	UserID      int64         `json:"user_id"`
+	TotalScore  sql.NullInt64 `json:"total_score"`
+	LastUpdated sql.NullTime  `json:"last_updated"`
 }
 
 type Question struct {
-	ID        int64
-	Question  string
-	Answer    string
-	Timestamp sql.NullTime
-	IsActive  sql.NullBool
+	ID        int64        `json:"id"`
+	Question  string       `json:"question"`
+	Answer    string       `json:"answer"`
+	Timestamp sql.NullTime `json:"timestamp"`
+	IsActive  sql.NullBool `json:"is_active"`
 }
 
 type Quiz struct {
-	ID          int64
-	QID         int64
-	AID         int64
-	Date        sql.NullTime
-	IsActive    sql.NullBool
-	OptionsJson string
+	ID          int64        `json:"id"`
+	QID         int64        `json:"q_id"`
+	AID         int64        `json:"a_id"`
+	Date        sql.NullTime `json:"date"`
+	IsActive    sql.NullBool `json:"is_active"`
+	OptionsJson string       `json:"options_json"`
 }
 
 type User struct {
-	ID        int64
-	Username  string
-	Email     string
-	Timestamp sql.NullTime
+	ID        int64        `json:"id"`
+	Username  string       `json:"username"`
+	Email     string       `json:"email"`
+	Timestamp sql.NullTime `json:"timestamp"`
 }
