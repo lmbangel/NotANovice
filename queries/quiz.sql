@@ -22,6 +22,9 @@ INSERT INTO attempts (user_id, quiz_id, answer, is_correct)
 VALUES (?, ?, ?, ?)
 RETURNING *;
 
+-- name: GetAttempts :many
+SELECT * FROM attempts;
+
 -- name: UpdateLeaderboard :exec
 INSERT INTO leader_board (user_id, total_score)
 VALUES (?, ?)

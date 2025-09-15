@@ -86,10 +86,13 @@ func main() {
 
 	mux.Route("/v1", func(r chi.Router) {
 		r.Get("/quiz", HandleGetdailyQuiz)
-		//r.Get("/questions", HandleGetQuestions)
-		//r.Post("/questions/{id}/answer", HandleAnswersToQuestions)
-
 		r.Post("/login", HandleLogin)
+
+		r.Group(func(r chi.Router) {
+			r.Get("/attempts", handlers.HandleGetAttempts)
+			r.Get("/attempts/{id}", handlers.HandleGetAttemptByID)
+		})
+
 		r.Group(func(r chi.Router) {
 			r.Get("/users", handlers.HandleGetUsers)
 			r.Get("/users/{id}", handlers.HandleGetUserByID)

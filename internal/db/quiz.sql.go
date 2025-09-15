@@ -55,6 +55,40 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getAttempts = `-- name: GetAttempts :many
+SELECT id, user_id, quiz_id, answer, is_correct, timestamp FROM attempts
+`
+
+func (q *Queries) GetAttempts(ctx context.Context) ([]Attempt, error) {
+	rows, err := q.db.QueryContext(ctx, getAttempts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Attempt
+	for rows.Next() {
+		var i Attempt
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.QuizID,
+			&i.Answer,
+			&i.IsCorrect,
+			&i.Timestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuestion = `-- name: GetQuestion :one
 SELECT id, question, answer, timestamp, is_active FROM questions WHERE id = ?
 `

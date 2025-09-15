@@ -9,6 +9,7 @@
 *.dylib
 *.db
 .vscode
+*/*.db
 
 # Test binary, built with `go test -c`
 *.test

@@ -1,6 +1,7 @@
 package attempt
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/lmbangel/_novice/internal/db"
@@ -21,6 +22,21 @@ func TestCreateAttempt(t *testing.T) {
 
 		if got.ID == 0 {
 			t.Errorf("Error: attempt not created, ID not set")
+		}
+	})
+}
+
+func TestGetAttempts(t *testing.T) {
+	t.Run("Test getting attempts", func(t *testing.T) {
+		got, err := GetAttempts()
+		want := &[]db.Attempt{}
+
+		if err != nil {
+			t.Errorf("Error: Could not create an attempt;  %s", err.Error())
+		}
+
+		if reflect.TypeOf(got) != reflect.TypeOf(want) {
+			t.Errorf("Error: wanted a slice of db.Attempt, i.e []db.Attempt. Received %s", reflect.TypeOf(got))
 		}
 	})
 }
