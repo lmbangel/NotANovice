@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/lmbangel/_novice/cmd/handlers"
+	"github.com/lmbangel/_novice/internal/attempt"
 	"github.com/lmbangel/_novice/internal/db"
 	"github.com/lmbangel/_novice/pkg/agents"
 	_ "modernc.org/sqlite"
@@ -79,8 +80,18 @@ func HandleGetdailyQuiz(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode([]string{response.Response})
 }
 
+func setupDatabase() *sql.DB {
+	conn, err := sql.Open("sqlite", "./quiz.db")
+	if err != nil {
+		panic(err)
+	}
+	return conn
+}
+
 func main() {
 	mux := chi.NewRouter()
+
+	dbConn := setupDatabase()
 
 	mux.Get("/health", HandleHealthCheck)
 
@@ -89,9 +100,14 @@ func main() {
 		r.Post("/login", HandleLogin)
 
 		r.Group(func(r chi.Router) {
-			r.Get("/attempts", handlers.HandleGetAttempts)
-			r.Get("/attempts/{id}", handlers.HandleGetAttemptByID)
-			r.Post("/attempts", handlers.HandleCreateNewAttempt)
+			aRepo := attempt.NewSQLiteAttemptRepository(dbConn)
+			aService := attempt.NewAttemptService(aRepo)
+			h := &attempt.AttemptHandler{AttemptService: aService}
+
+			r.Post("/attempts", h.HandleCreateNewAttempt)
+			r.Get("/attempts", h.HandleGetAttempts)
+			r.Get("/attempts/{id}", h.HandleGetAttemptByID)
+			r.Get("/users/{id}/attempts", h.HandleGetAttemptByUserID)
 		})
 
 		r.Group(func(r chi.Router) {

@@ -107,6 +107,40 @@ func (q *Queries) GetAttempts(ctx context.Context) ([]Attempt, error) {
 	return items, nil
 }
 
+const getAttemptsByUserID = `-- name: GetAttemptsByUserID :many
+SELECT id, user_id, quiz_id, answer, is_correct, timestamp FROM attempts WHERE user_id = ?
+`
+
+func (q *Queries) GetAttemptsByUserID(ctx context.Context, userID int64) ([]Attempt, error) {
+	rows, err := q.db.QueryContext(ctx, getAttemptsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Attempt
+	for rows.Next() {
+		var i Attempt
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.QuizID,
+			&i.Answer,
+			&i.IsCorrect,
+			&i.Timestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuestion = `-- name: GetQuestion :one
 SELECT id, question, answer, timestamp, is_active FROM questions WHERE id = ?
 `

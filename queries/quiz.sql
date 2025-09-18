@@ -28,6 +28,9 @@ SELECT * FROM attempts;
 -- name: GetAttemptByID :one
 SELECT * FROM attempts WHERE id = ?;
 
+-- name: GetAttemptsByUserID :many
+SELECT * FROM attempts WHERE user_id = ?;
+
 -- name: UpdateLeaderboard :exec
 INSERT INTO leader_board (user_id, total_score)
 VALUES (?, ?)
