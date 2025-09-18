@@ -31,6 +31,17 @@ SELECT * FROM attempts WHERE id = ?;
 -- name: GetAttemptsByUserID :many
 SELECT * FROM attempts WHERE user_id = ?;
 
+-- name: GetQuizes :many
+Select * FROM quiz;
+
+-- name: GetQuizByID :one
+SELECT * FROM quiz WHERE id = ?;
+
+-- name: GetQuizOfTheDay :one
+SELECT *
+FROM quiz
+WHERE DATE(date) = DATE('now');
+
 -- name: UpdateLeaderboard :exec
 INSERT INTO leader_board (user_id, total_score)
 VALUES (?, ?)

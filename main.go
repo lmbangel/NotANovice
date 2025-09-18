@@ -12,6 +12,7 @@ import (
 	"github.com/lmbangel/_novice/cmd/handlers"
 	"github.com/lmbangel/_novice/internal/attempt"
 	"github.com/lmbangel/_novice/internal/db"
+	"github.com/lmbangel/_novice/internal/quiz"
 	"github.com/lmbangel/_novice/pkg/agents"
 	_ "modernc.org/sqlite"
 )
@@ -108,6 +109,13 @@ func main() {
 			r.Get("/attempts", h.HandleGetAttempts)
 			r.Get("/attempts/{id}", h.HandleGetAttemptByID)
 			r.Get("/users/{id}/attempts", h.HandleGetAttemptByUserID)
+		})
+
+		r.Group(func(r chi.Router) {
+			qRepo := quiz.NewSQLiteQuizRepository(dbConn)
+			qService := quiz.NewQuizService(qRepo)
+			h := &quiz.QuizHandler{QuizService: qService}
+			r.Get("/quizes", h.HandleGetQuizes)
 		})
 
 		r.Group(func(r chi.Router) {

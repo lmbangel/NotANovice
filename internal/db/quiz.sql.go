@@ -158,6 +158,78 @@ func (q *Queries) GetQuestion(ctx context.Context, id int64) (Question, error) {
 	return i, err
 }
 
+const getQuizByID = `-- name: GetQuizByID :one
+SELECT id, q_id, a_id, date, is_active, options_json FROM quiz WHERE id = ?
+`
+
+func (q *Queries) GetQuizByID(ctx context.Context, id int64) (Quiz, error) {
+	row := q.db.QueryRowContext(ctx, getQuizByID, id)
+	var i Quiz
+	err := row.Scan(
+		&i.ID,
+		&i.QID,
+		&i.AID,
+		&i.Date,
+		&i.IsActive,
+		&i.OptionsJson,
+	)
+	return i, err
+}
+
+const getQuizOfTheDay = `-- name: GetQuizOfTheDay :one
+SELECT id, q_id, a_id, date, is_active, options_json
+FROM quiz
+WHERE DATE(date) = DATE('now')
+`
+
+func (q *Queries) GetQuizOfTheDay(ctx context.Context) (Quiz, error) {
+	row := q.db.QueryRowContext(ctx, getQuizOfTheDay)
+	var i Quiz
+	err := row.Scan(
+		&i.ID,
+		&i.QID,
+		&i.AID,
+		&i.Date,
+		&i.IsActive,
+		&i.OptionsJson,
+	)
+	return i, err
+}
+
+const getQuizes = `-- name: GetQuizes :many
+Select id, q_id, a_id, date, is_active, options_json FROM quiz
+`
+
+func (q *Queries) GetQuizes(ctx context.Context) ([]Quiz, error) {
+	rows, err := q.db.QueryContext(ctx, getQuizes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Quiz
+	for rows.Next() {
+		var i Quiz
+		if err := rows.Scan(
+			&i.ID,
+			&i.QID,
+			&i.AID,
+			&i.Date,
+			&i.IsActive,
+			&i.OptionsJson,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByID = `-- name: GetUserByID :one
 SELECT id, username, email, timestamp FROM users WHERE id = ?
 `
