@@ -8,13 +8,6 @@ import (
 	"database/sql"
 )
 
-type Answer struct {
-	ID        int64        `json:"id"`
-	Answer    string       `json:"answer"`
-	Timestamp sql.NullTime `json:"timestamp"`
-	IsActive  sql.NullBool `json:"is_active"`
-}
-
 type Attempt struct {
 	ID        int64        `json:"id"`
 	UserID    int64        `json:"user_id"`
@@ -32,11 +25,15 @@ type LeaderBoard struct {
 }
 
 type Question struct {
-	ID        int64        `json:"id"`
-	Question  string       `json:"question"`
-	Answer    string       `json:"answer"`
-	Timestamp sql.NullTime `json:"timestamp"`
-	IsActive  sql.NullBool `json:"is_active"`
+	ID            int64          `json:"id"`
+	Question      string         `json:"question"`
+	CorrectAnswer string         `json:"correct_answer"`
+	Timestamp     sql.NullTime   `json:"timestamp"`
+	IsActive      sql.NullBool   `json:"is_active"`
+	AAnswer       string         `json:"a_answer"`
+	BAnswer       string         `json:"b_answer"`
+	CAnswer       string         `json:"c_answer"`
+	DAnswer       sql.NullString `json:"d_answer"`
 }
 
 type Quiz struct {

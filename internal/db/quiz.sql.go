@@ -11,24 +11,40 @@ import (
 )
 
 const createQuestion = `-- name: CreateQuestion :one
-INSERT INTO questions (question, answer) VALUES (?, ?)
-RETURNING id, question, answer, timestamp, is_active
+INSERT INTO questions (question, correct_answer, a_answer, b_answer, c_answer, d_answer)
+VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer
 `
 
 type CreateQuestionParams struct {
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
+	Question      string         `json:"question"`
+	CorrectAnswer string         `json:"correct_answer"`
+	AAnswer       string         `json:"a_answer"`
+	BAnswer       string         `json:"b_answer"`
+	CAnswer       string         `json:"c_answer"`
+	DAnswer       sql.NullString `json:"d_answer"`
 }
 
 func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) (Question, error) {
-	row := q.db.QueryRowContext(ctx, createQuestion, arg.Question, arg.Answer)
+	row := q.db.QueryRowContext(ctx, createQuestion,
+		arg.Question,
+		arg.CorrectAnswer,
+		arg.AAnswer,
+		arg.BAnswer,
+		arg.CAnswer,
+		arg.DAnswer,
+	)
 	var i Question
 	err := row.Scan(
 		&i.ID,
 		&i.Question,
-		&i.Answer,
+		&i.CorrectAnswer,
 		&i.Timestamp,
 		&i.IsActive,
+		&i.AAnswer,
+		&i.BAnswer,
+		&i.CAnswer,
+		&i.DAnswer,
 	)
 	return i, err
 }
@@ -142,7 +158,7 @@ func (q *Queries) GetAttemptsByUserID(ctx context.Context, userID int64) ([]Atte
 }
 
 const getQuestion = `-- name: GetQuestion :one
-SELECT id, question, answer, timestamp, is_active FROM questions WHERE id = ?
+SELECT id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer FROM questions WHERE id = ?
 `
 
 func (q *Queries) GetQuestion(ctx context.Context, id int64) (Question, error) {
@@ -151,9 +167,13 @@ func (q *Queries) GetQuestion(ctx context.Context, id int64) (Question, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Question,
-		&i.Answer,
+		&i.CorrectAnswer,
 		&i.Timestamp,
 		&i.IsActive,
+		&i.AAnswer,
+		&i.BAnswer,
+		&i.CAnswer,
+		&i.DAnswer,
 	)
 	return i, err
 }
@@ -342,4 +362,27 @@ type UpdateLeaderboardParams struct {
 func (q *Queries) UpdateLeaderboard(ctx context.Context, arg UpdateLeaderboardParams) error {
 	_, err := q.db.ExecContext(ctx, updateLeaderboard, arg.UserID, arg.TotalScore)
 	return err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users SET username = ?, email = ? where id = ?
+RETURNING id, username, email, timestamp
+`
+
+type UpdateUserParams struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	ID       int64  `json:"id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser, arg.Username, arg.Email, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Timestamp,
+	)
+	return i, err
 }

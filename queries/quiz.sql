@@ -1,5 +1,6 @@
 -- name: CreateQuestion :one
-INSERT INTO questions (question, answer) VALUES (?, ?)
+INSERT INTO questions (question, correct_answer, a_answer, b_answer, c_answer, d_answer)
+VALUES (?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: GetQuestion :one
@@ -16,6 +17,10 @@ SELECT * FROM users WHERE id = ?;
 
 -- name: GetUserByUsername :one
 SELECT * FROM users where username = ?;
+
+-- name: UpdateUser :one
+UPDATE users SET username = ?, email = ? where id = ?
+RETURNING *;
 
 -- name: RecordAttempt :one
 INSERT INTO attempts (user_id, quiz_id, answer, is_correct)

@@ -10,10 +10,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/lmbangel/_novice/cmd/handlers"
 	"github.com/lmbangel/_novice/internal/attempt"
 	"github.com/lmbangel/_novice/internal/db"
 	"github.com/lmbangel/_novice/internal/quiz"
+	"github.com/lmbangel/_novice/internal/user"
 	"github.com/lmbangel/_novice/pkg/agents"
 	_ "modernc.org/sqlite"
 )
@@ -126,9 +126,14 @@ func main() {
 		})
 
 		r.Group(func(r chi.Router) {
-			r.Get("/users", handlers.HandleGetUsers)
-			r.Get("/users/{id}", handlers.HandleGetUserByID)
-			r.Post("/users", handlers.HandleCreateNewUser)
+			uRepo := user.NewSQLiteUserRepository(dbConn)
+			uService := user.NewUserService(uRepo)
+			h := &user.UserHandler{UserService: uService}
+
+			r.Get("/users", h.GetUsers)
+			r.Get("/users/{id}", h.GetUserByID)
+			r.Post("/users", h.CreateUser)
+			//r.Put("/users", handlers.HandleCreateNewUser)
 		})
 	})
 
