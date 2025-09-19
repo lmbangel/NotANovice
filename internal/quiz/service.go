@@ -2,7 +2,6 @@ package quiz
 
 import (
 	"context"
-	"time"
 )
 
 type QuizService struct {
@@ -21,6 +20,6 @@ func (s *QuizService) GetQuizByID(ctx context.Context, id int64) (*Quiz, error) 
 	return s.repo.GetQuizByID(ctx, id)
 }
 
-func (s *QuizService) GetQuizOfTheDay(ctx context.Context, t time.Time) (*Quiz, error) {
+func (s *QuizService) GetQuizOfTheDay(ctx context.Context) (*Quiz, error) {
 	return s.repo.GetQuizOfTheDay(ctx)
 }

@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/lmbangel/_novice/cmd/handlers"
 	"github.com/lmbangel/_novice/internal/attempt"
 	"github.com/lmbangel/_novice/internal/db"
@@ -97,6 +98,11 @@ func main() {
 	mux.Get("/health", HandleHealthCheck)
 
 	mux.Route("/v1", func(r chi.Router) {
+		r.Use(middleware.RequestID)
+		r.Use(middleware.RealIP)
+		r.Use(middleware.Logger)
+		r.Use(middleware.Recoverer)
+
 		r.Get("/quiz", HandleGetdailyQuiz)
 		r.Post("/login", HandleLogin)
 
@@ -116,6 +122,7 @@ func main() {
 			qService := quiz.NewQuizService(qRepo)
 			h := &quiz.QuizHandler{QuizService: qService}
 			r.Get("/quizes", h.HandleGetQuizes)
+			r.Get("/quizes/{id}", h.HandleGetQuizByID)
 		})
 
 		r.Group(func(r chi.Router) {
