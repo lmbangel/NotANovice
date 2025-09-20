@@ -68,5 +68,52 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var usr User
+
+	if err := json.NewDecoder(r.Body).Decode(&usr); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"Message": err.Error()})
+		return
+	}
+
+	u, err := h.UserService.CreateUser(context.Background(), CreateUserParams{
+		Username: usr.Username,
+		Email:    usr.Email,
+	})
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"Message": err.Error()})
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(u)
+}
+func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var usr User
+
+	if err := json.NewDecoder(r.Body).Decode(&usr); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"Message": err.Error()})
+		return
+	}
+
+	u, err := h.UserService.UpdateUser(context.Background(), UpdateUserParams{
+		Username: usr.Username,
+		Email:    usr.Email,
+		ID:       usr.ID,
+	})
 	
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"Message": err.Error()})
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(u)
 }

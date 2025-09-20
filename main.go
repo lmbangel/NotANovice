@@ -7,26 +7,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-ping/ping"
 	"github.com/lmbangel/_novice/internal/attempt"
 	"github.com/lmbangel/_novice/internal/db"
+	"github.com/lmbangel/_novice/internal/m_middleware"
 	"github.com/lmbangel/_novice/internal/quiz"
 	"github.com/lmbangel/_novice/internal/user"
 	"github.com/lmbangel/_novice/pkg/agents"
 	_ "modernc.org/sqlite"
 )
-
-func HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
-	response := map[string]string{
-		"status": "Up",
-		"state":  "Healthy",
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var u db.User
@@ -95,13 +88,25 @@ func main() {
 
 	dbConn := setupDatabase()
 
-	mux.Get("/health", HandleHealthCheck)
-
 	mux.Route("/v1", func(r chi.Router) {
 		r.Use(middleware.RequestID)
 		r.Use(middleware.RealIP)
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
+
+		r.Group(func(r chi.Router) {
+			Addr := "8.8.8.8:53"
+			//Addr := "127.0.0.1:65534"
+			Transport := "tcp"
+			p, _ := ping.NewPinger(Addr)
+			p.SetPrivileged(false)
+			p.Count = 3
+			p.Timeout = 5 * time.Second
+			hRepo := m_middleware.NewHealthRepository(p, Addr, Transport)
+			hService := m_middleware.NewHealthService(hRepo)
+			h := &m_middleware.HealthHandler{HealthService: hService}
+			r.Get("/health", h.CheckHealth)
+		})
 
 		r.Get("/quiz", HandleGetdailyQuiz)
 		r.Post("/login", HandleLogin)
@@ -133,7 +138,7 @@ func main() {
 			r.Get("/users", h.GetUsers)
 			r.Get("/users/{id}", h.GetUserByID)
 			r.Post("/users", h.CreateUser)
-			//r.Put("/users", handlers.HandleCreateNewUser)
+			r.Put("/users", h.UpdateUser)
 		})
 	})
 
