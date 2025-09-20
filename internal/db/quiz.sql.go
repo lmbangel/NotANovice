@@ -17,12 +17,12 @@ RETURNING id, question, correct_answer, timestamp, is_active, a_answer, b_answer
 `
 
 type CreateQuestionParams struct {
-	Question      string         `json:"question"`
-	CorrectAnswer string         `json:"correct_answer"`
-	AAnswer       string         `json:"a_answer"`
-	BAnswer       string         `json:"b_answer"`
-	CAnswer       string         `json:"c_answer"`
-	DAnswer       sql.NullString `json:"d_answer"`
+	Question      string `json:"question"`
+	CorrectAnswer string `json:"correct_answer"`
+	AAnswer       string `json:"a_answer"`
+	BAnswer       string `json:"b_answer"`
+	CAnswer       string `json:"c_answer"`
+	DAnswer       string `json:"d_answer"`
 }
 
 func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) (Question, error) {

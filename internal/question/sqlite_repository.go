@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"os"
 	"strings"
 
@@ -35,13 +36,16 @@ func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Quest
 	}
 	response := o.Prompt()
 
-	resp := strings.TrimPrefix(strings.TrimSpace(response.Response), "```json")
-	resp = strings.TrimPrefix(resp, "```")
-	resp = strings.TrimSuffix(resp, "```")
+	//resp := strings.TrimPrefix(strings.TrimSpace(response.Response), "```json")
+	//resp = strings.TrimPrefix(resp, "```")
+	//resp = strings.TrimSuffix(resp, "```")
 
 	var newQuestion Question
-	if err := json.Unmarshal([]byte(resp), &newQuestion); err != nil {
+	if err := ExtractJSON(response.Response, &newQuestion); err != nil {
 		return nil, err
+	}
+	if newQuestion.CorrectAnswer == "" {
+		return nil, errors.New("LLM returned blank correct_answer")
 	}
 
 	q := db.New(r.db)
@@ -51,11 +55,20 @@ func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Quest
 		AAnswer:       newQuestion.AAnswer,
 		BAnswer:       newQuestion.BAnswer,
 		CAnswer:       newQuestion.CAnswer,
-		DAnswer: sql.NullString{
-			String: newQuestion.DAnswer.String,
-			Valid:  true,
-		},
+		DAnswer:       newQuestion.DAnswer,
 	})
 
 	return fmtQuesion(qsn), nil
+}
+
+func ExtractJSON(resp string, v interface{}) error {
+	start := strings.Index(resp, "{")
+	end := strings.LastIndex(resp, "}")
+	if start == -1 || end == -1 || start >= end {
+		return errors.New("no valid JSON object found")
+	}
+
+	jsonStr := resp[start : end+1]
+
+	return json.Unmarshal([]byte(jsonStr), v)
 }

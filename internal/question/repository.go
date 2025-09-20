@@ -12,15 +12,15 @@ type QuestionRepository interface {
 }
 
 type Question struct {
-	ID            int64          `json:"id"`
-	Question      string         `json:"question"`
-	CorrectAnswer string         `json:"correct_answer"`
-	Timestamp     sql.NullTime   `json:"timestamp"`
-	IsActive      sql.NullBool   `json:"is_active"`
-	AAnswer       string         `json:"a_answer"`
-	BAnswer       string         `json:"b_answer"`
-	CAnswer       string         `json:"c_answer"`
-	DAnswer       sql.NullString `json:"d_answer"`
+	ID            int64        `json:"id"`
+	Question      string       `json:"question"`
+	CorrectAnswer string       `json:"correct_answer"`
+	Timestamp     sql.NullTime `json:"timestamp"`
+	IsActive      sql.NullBool `json:"is_active"`
+	AAnswer       string       `json:"a_answer"`
+	BAnswer       string       `json:"b_answer"`
+	CAnswer       string       `json:"c_answer"`
+	DAnswer       string       `json:"d_answer"`
 }
 
 func fmtQuesion(q db.Question) *Question {
