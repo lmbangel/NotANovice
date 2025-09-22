@@ -2,6 +2,7 @@ package attempt
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -85,6 +86,10 @@ func (h *AttemptHandler) HandleCreateNewAttempt(w http.ResponseWriter, r *http.R
 		UserID: attempt.UserID,
 		QuizID: attempt.QuizID,
 		Answer: attempt.Answer,
+		IsCorrect: sql.NullBool{
+			Bool: false,
+			Valid: true,
+		},
 	})
 
 	if err != nil {

@@ -69,7 +69,9 @@ func main() {
 
 		r.Group(func(r chi.Router) {
 			aRepo := attempt.NewSQLiteAttemptRepository(dbConn)
-			aService := attempt.NewAttemptService(aRepo)
+				qRepo := quiz.NewSQLiteQuizRepository(dbConn)
+			qService := quiz.NewQuizService(qRepo)
+			aService := attempt.NewAttemptService(aRepo, qService)
 			h := &attempt.AttemptHandler{AttemptService: aService}
 
 			r.Post("/attempts", h.HandleCreateNewAttempt)

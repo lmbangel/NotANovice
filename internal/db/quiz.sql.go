@@ -216,63 +216,121 @@ func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
 }
 
 const getQuizByID = `-- name: GetQuizByID :one
-SELECT id, q_id, a_id, date, is_active, options_json FROM quiz WHERE id = ?
+SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id 
+WHERE quiz.id = ?
 `
 
-func (q *Queries) GetQuizByID(ctx context.Context, id int64) (Quiz, error) {
+type GetQuizByIDRow struct {
+	QuizID        int64          `json:"quiz_id"`
+	ID            sql.NullInt64  `json:"id"`
+	Question      sql.NullString `json:"question"`
+	CorrectAnswer sql.NullString `json:"correct_answer"`
+	Timestamp     sql.NullTime   `json:"timestamp"`
+	IsActive      sql.NullBool   `json:"is_active"`
+	AAnswer       sql.NullString `json:"a_answer"`
+	BAnswer       sql.NullString `json:"b_answer"`
+	CAnswer       sql.NullString `json:"c_answer"`
+	DAnswer       sql.NullString `json:"d_answer"`
+}
+
+func (q *Queries) GetQuizByID(ctx context.Context, id int64) (GetQuizByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getQuizByID, id)
-	var i Quiz
+	var i GetQuizByIDRow
 	err := row.Scan(
+		&i.QuizID,
 		&i.ID,
-		&i.QID,
-		&i.AID,
-		&i.Date,
+		&i.Question,
+		&i.CorrectAnswer,
+		&i.Timestamp,
 		&i.IsActive,
-		&i.OptionsJson,
+		&i.AAnswer,
+		&i.BAnswer,
+		&i.CAnswer,
+		&i.DAnswer,
 	)
 	return i, err
 }
 
 const getQuizOfTheDay = `-- name: GetQuizOfTheDay :one
-SELECT id, q_id, a_id, date, is_active, options_json
-FROM quiz
-WHERE DATE(date) = DATE('now')
+SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id
+WHERE DATE(quiz.date) = DATE('now')
 `
 
-func (q *Queries) GetQuizOfTheDay(ctx context.Context) (Quiz, error) {
+type GetQuizOfTheDayRow struct {
+	QuizID        int64          `json:"quiz_id"`
+	ID            sql.NullInt64  `json:"id"`
+	Question      sql.NullString `json:"question"`
+	CorrectAnswer sql.NullString `json:"correct_answer"`
+	Timestamp     sql.NullTime   `json:"timestamp"`
+	IsActive      sql.NullBool   `json:"is_active"`
+	AAnswer       sql.NullString `json:"a_answer"`
+	BAnswer       sql.NullString `json:"b_answer"`
+	CAnswer       sql.NullString `json:"c_answer"`
+	DAnswer       sql.NullString `json:"d_answer"`
+}
+
+func (q *Queries) GetQuizOfTheDay(ctx context.Context) (GetQuizOfTheDayRow, error) {
 	row := q.db.QueryRowContext(ctx, getQuizOfTheDay)
-	var i Quiz
+	var i GetQuizOfTheDayRow
 	err := row.Scan(
+		&i.QuizID,
 		&i.ID,
-		&i.QID,
-		&i.AID,
-		&i.Date,
+		&i.Question,
+		&i.CorrectAnswer,
+		&i.Timestamp,
 		&i.IsActive,
-		&i.OptionsJson,
+		&i.AAnswer,
+		&i.BAnswer,
+		&i.CAnswer,
+		&i.DAnswer,
 	)
 	return i, err
 }
 
 const getQuizes = `-- name: GetQuizes :many
-Select id, q_id, a_id, date, is_active, options_json FROM quiz
+SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id
+WHERE quiz.is_active = 1
 `
 
-func (q *Queries) GetQuizes(ctx context.Context) ([]Quiz, error) {
+type GetQuizesRow struct {
+	QuizID        int64          `json:"quiz_id"`
+	ID            sql.NullInt64  `json:"id"`
+	Question      sql.NullString `json:"question"`
+	CorrectAnswer sql.NullString `json:"correct_answer"`
+	Timestamp     sql.NullTime   `json:"timestamp"`
+	IsActive      sql.NullBool   `json:"is_active"`
+	AAnswer       sql.NullString `json:"a_answer"`
+	BAnswer       sql.NullString `json:"b_answer"`
+	CAnswer       sql.NullString `json:"c_answer"`
+	DAnswer       sql.NullString `json:"d_answer"`
+}
+
+func (q *Queries) GetQuizes(ctx context.Context) ([]GetQuizesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getQuizes)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Quiz
+	var items []GetQuizesRow
 	for rows.Next() {
-		var i Quiz
+		var i GetQuizesRow
 		if err := rows.Scan(
+			&i.QuizID,
 			&i.ID,
-			&i.QID,
-			&i.AID,
-			&i.Date,
+			&i.Question,
+			&i.CorrectAnswer,
+			&i.Timestamp,
 			&i.IsActive,
-			&i.OptionsJson,
+			&i.AAnswer,
+			&i.BAnswer,
+			&i.CAnswer,
+			&i.DAnswer,
 		); err != nil {
 			return nil, err
 		}

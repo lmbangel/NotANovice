@@ -2,7 +2,7 @@ package quiz
 
 import (
 	"context"
-	"database/sql"
+	"time"
 
 	"github.com/lmbangel/_novice/internal/db"
 )
@@ -14,37 +14,95 @@ type QuizRepository interface {
 }
 
 type Quiz struct {
-	ID          int64        `json:"id"`
-	QID         int64        `json:"q_id"`
-	AID         int64        `json:"a_id"`
-	Date        sql.NullTime `json:"date"`
-	IsActive    sql.NullBool `json:"is_active"`
-	OptionsJson string       `json:"options_json"`
+	QuizID        int64     `json:"quiz_id"`
+	ID            int64     `json:"id"`
+	Question      string    `json:"question"`
+	CorrectAnswer string    `json:"correct_answer"`
+	Timestamp     time.Time `json:"timestamp"`
+	IsActive      bool      `json:"is_active"`
+	AAnswer       string    `json:"a_answer"`
+	BAnswer       string    `json:"b_answer"`
+	CAnswer       string    `json:"c_answer"`
+	DAnswer       string    `json:"d_answer"`
 }
 
-func fmtQuizes(q []db.Quiz) []Quiz {
+func fmtQuizes(q []db.GetQuizesRow) []Quiz {
 	qzs := make([]Quiz, len(q))
 
 	for i, qui := range q {
 		qzs[i] = Quiz{
-			ID:          qui.ID,
-			QID:         qui.QID,
-			AID:         qui.AID,
-			Date:        qui.Date,
-			IsActive:    qui.IsActive,
-			OptionsJson: qui.OptionsJson,
+			QuizID:        qui.QuizID,
+			ID:            qui.ID.Int64,
+			Question:      qui.Question.String,
+			CorrectAnswer: qui.CorrectAnswer.String,
+			Timestamp:     qui.Timestamp.Time,
+			IsActive:      qui.IsActive.Bool,
+			AAnswer:       qui.AAnswer.String,
+			BAnswer:       qui.BAnswer.String,
+			CAnswer:       qui.CAnswer.String,
+			DAnswer:       qui.DAnswer.String,
 		}
 	}
 	return qzs
 }
 
-func fmtQuiz(qui db.Quiz) *Quiz {
-	return &Quiz{
-		ID:          qui.ID,
-		QID:         qui.QID,
-		AID:         qui.AID,
-		Date:        qui.Date,
-		IsActive:    qui.IsActive,
-		OptionsJson: qui.OptionsJson,
+//func fmtQuiz(qui db.GetQuizOfTheDayRow) *Quiz {
+//	return &Quiz{
+//		QuizID:        qui.QuizID,
+//		ID:            qui.ID,
+//		Question:      qui.Question,
+//		CorrectAnswer: qui.CorrectAnswer,
+//		Timestamp:     qui.Timestamp,
+//		IsActive:      qui.IsActive,
+//		AAnswer:       qui.AAnswer,
+//		BAnswer:       qui.BAnswer,
+//		CAnswer:       qui.CAnswer,
+//		DAnswer:       qui.DAnswer,
+//	}
+//}
+
+func fmtQuiz(qui any) *Quiz {
+	switch q := qui.(type) {
+	case db.GetQuizOfTheDayRow:
+		return &Quiz{
+			QuizID:        q.QuizID,
+			ID:            q.ID.Int64,
+			Question:      q.Question.String,
+			CorrectAnswer: q.CorrectAnswer.String,
+			Timestamp:     q.Timestamp.Time,
+			IsActive:      q.IsActive.Bool,
+			AAnswer:       q.AAnswer.String,
+			BAnswer:       q.BAnswer.String,
+			CAnswer:       q.CAnswer.String,
+			DAnswer:       q.DAnswer.String,
+		}
+	case db.GetQuizesRow:
+		return &Quiz{
+			QuizID:        q.QuizID,
+			ID:            q.ID.Int64,
+			Question:      q.Question.String,
+			CorrectAnswer: q.CorrectAnswer.String,
+			Timestamp:     q.Timestamp.Time,
+			IsActive:      q.IsActive.Bool,
+			AAnswer:       q.AAnswer.String,
+			BAnswer:       q.BAnswer.String,
+			CAnswer:       q.CAnswer.String,
+			DAnswer:       q.DAnswer.String,
+		}
+	case db.GetQuizByIDRow:
+		return &Quiz{
+			QuizID:        q.QuizID,
+			ID:            q.ID.Int64,
+			Question:      q.Question.String,
+			CorrectAnswer: q.CorrectAnswer.String,
+			Timestamp:     q.Timestamp.Time,
+			IsActive:      q.IsActive.Bool,
+			AAnswer:       q.AAnswer.String,
+			BAnswer:       q.BAnswer.String,
+			CAnswer:       q.CAnswer.String,
+			DAnswer:       q.DAnswer.String,
+		}
+	default:
+		return nil
 	}
 }

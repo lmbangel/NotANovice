@@ -40,15 +40,22 @@ SELECT * FROM attempts WHERE id = ?;
 SELECT * FROM attempts WHERE user_id = ?;
 
 -- name: GetQuizes :many
-Select * FROM quiz;
+SELECT quiz.id as quiz_id , questions.* 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id
+WHERE quiz.is_active = 1;
 
 -- name: GetQuizByID :one
-SELECT * FROM quiz WHERE id = ?;
+SELECT quiz.id as quiz_id , questions.* 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id 
+WHERE quiz.id = ?;
 
 -- name: GetQuizOfTheDay :one
-SELECT *
-FROM quiz
-WHERE DATE(date) = DATE('now');
+SELECT quiz.id as quiz_id , questions.* 
+FROM quiz 
+LEFT JOIN questions on questions.id = quiz.q_id
+WHERE DATE(quiz.date) = DATE('now');
 
 -- name: UpdateLeaderboard :exec
 INSERT INTO leader_board (user_id, total_score)
