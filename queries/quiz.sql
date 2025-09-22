@@ -6,6 +6,9 @@ RETURNING *;
 -- name: GetQuestion :one
 SELECT * FROM questions WHERE id = ?;
 
+-- name: GetQuestions :many
+SELECT * FROM questions;
+
 -- name: CreateUser :one
 INSERT INTO users (username, email) VALUES (?, ?)
 RETURNING *;

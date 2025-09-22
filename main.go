@@ -85,7 +85,8 @@ func main() {
 			qRepo := question.NewSQLiteQuestionRepository(dbConn)
 			qService := question.NewQuestionService(qRepo)
 			h := &question.QuestionHandler{QuestionService: qService}
-			r.Get("/question", h.GenerateQuestion)
+			r.Post("/question", h.GenerateQuestion)
+			r.Get("/questions", h.GetQuestions)
 		})
 	})
 

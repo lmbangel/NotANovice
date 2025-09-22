@@ -178,6 +178,43 @@ func (q *Queries) GetQuestion(ctx context.Context, id int64) (Question, error) {
 	return i, err
 }
 
+const getQuestions = `-- name: GetQuestions :many
+SELECT id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer FROM questions
+`
+
+func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Question
+	for rows.Next() {
+		var i Question
+		if err := rows.Scan(
+			&i.ID,
+			&i.Question,
+			&i.CorrectAnswer,
+			&i.Timestamp,
+			&i.IsActive,
+			&i.AAnswer,
+			&i.BAnswer,
+			&i.CAnswer,
+			&i.DAnswer,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuizByID = `-- name: GetQuizByID :one
 SELECT id, q_id, a_id, date, is_active, options_json FROM quiz WHERE id = ?
 `

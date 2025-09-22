@@ -9,6 +9,7 @@ import (
 
 type QuestionRepository interface {
 	GenerateQuestion(ctx context.Context) (*Question, error)
+	GetQuestions(ctx context.Context) ([]Question, error)
 }
 
 type Question struct {
@@ -35,4 +36,23 @@ func fmtQuesion(q db.Question) *Question {
 		CAnswer:       q.CAnswer,
 		DAnswer:       q.DAnswer,
 	}
+}
+
+func fmtQuestions(qList []db.Question) []Question {
+	qs := make([]Question, len(qList))
+
+	for i, q := range qList {
+		qs[i] = Question{
+			ID:            q.ID,
+			Question:      q.Question,
+			CorrectAnswer: q.CorrectAnswer,
+			Timestamp:     q.Timestamp,
+			IsActive:      q.IsActive,
+			AAnswer:       q.AAnswer,
+			BAnswer:       q.BAnswer,
+			CAnswer:       q.CAnswer,
+			DAnswer:       q.DAnswer,
+		}
+	}
+	return qs
 }

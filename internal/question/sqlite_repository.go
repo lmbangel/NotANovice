@@ -20,6 +20,16 @@ func NewSQLiteQuestionRepository(db *sql.DB) QuestionRepository {
 	return &sqliteQuestionRepository{db: db}
 }
 
+func (r *sqliteQuestionRepository) GetQuestions(ctx context.Context) ([]Question, error) {
+	q := db.New(r.db)
+
+	qs, err := q.GetQuestions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return fmtQuestions(qs), nil
+}
+
 func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Question, error) {
 	data, err := os.ReadFile("./internal/question/_prompt.md")
 	if err != nil {
@@ -32,13 +42,14 @@ func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Quest
 		Request: &agents.Request{
 			Model:  "llama3.2:latest",
 			Prompt: sysPrompt,
+			//Options: &agents.Options{
+			//	Temperature: 0,
+			//	TopP:        1,
+			//	TopK:        1,
+			//},
 		},
 	}
 	response := o.Prompt()
-
-	//resp := strings.TrimPrefix(strings.TrimSpace(response.Response), "```json")
-	//resp = strings.TrimPrefix(resp, "```")
-	//resp = strings.TrimSuffix(resp, "```")
 
 	var newQuestion Question
 	if err := ExtractJSON(response.Response, &newQuestion); err != nil {
@@ -67,8 +78,6 @@ func ExtractJSON(resp string, v interface{}) error {
 	if start == -1 || end == -1 || start >= end {
 		return errors.New("no valid JSON object found")
 	}
-
 	jsonStr := resp[start : end+1]
-
 	return json.Unmarshal([]byte(jsonStr), v)
 }

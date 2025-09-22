@@ -17,3 +17,11 @@ func (s *QuestionService) GenerateQuestion(ctx context.Context) (*Question, erro
 	}
 	return q, nil
 }
+
+func (s *QuestionService) GetQuestions(ctx context.Context) ([]Question, error) {
+	q, err := s.repo.GetQuestions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return q, nil
+}

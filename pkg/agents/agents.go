@@ -13,10 +13,16 @@ type Agent interface {
 	Prompt() Response
 }
 
+type Options struct {
+	Temperature int64 `json:"temperature"`
+	TopP        int64 `json:"top_p"`
+	TopK        int64 `json:"top_k"`
+}
+
 type Request struct {
-	Model  string
-	Prompt string
-	//UserPrompt   string
+	Model   string
+	Prompt  string
+	Options *Options
 }
 
 type Response struct {
