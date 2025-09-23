@@ -67,10 +67,10 @@ SET total_score = total_score + excluded.total_score,
 -- name: GetLeaderBoard :many
 SELECT u.username, u.email, l.* FROM 
 leader_board l
-Left Join users u ON u.id = l.user_id
+Left Join users u ON u.id = l.user_id;
 
 -- name: GetLeaderBoardByUserID :one
 SELECT u.username, u.email, l.* FROM 
 leader_board l
 Left Join users u ON u.id = l.user_id
-WHERE l.user_id = ?
+WHERE l.user_id = ?;

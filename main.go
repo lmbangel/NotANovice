@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-ping/ping"
 	"github.com/lmbangel/_novice/internal/attempt"
+	"github.com/lmbangel/_novice/internal/leaderboard"
 	"github.com/lmbangel/_novice/internal/m_middleware"
 	"github.com/lmbangel/_novice/internal/question"
 	"github.com/lmbangel/_novice/internal/quiz"
@@ -86,6 +87,13 @@ func main() {
 			h := &quiz.QuizHandler{QuizService: qService}
 			r.Get("/quizes", h.HandleGetQuizes)
 			r.Get("/quizes/{id}", h.HandleGetQuizByID)
+		})
+		r.Group(func(r chi.Router) {
+			lRepo := leaderboard.NewSQLiteLeaderBoardRepository(dbConn)
+			lService := leaderboard.NewLeaderBoardService(lRepo)
+			h := &leaderboard.LeaderBoardHandler{LeaderBoardService: lService}
+			r.Get("/leaderboard", h.HandleGetLeaderBoard)
+			r.Get("/leaderboard/{id}", h.HandleGetLeaderBoardUserID)
 		})
 
 		r.Group(func(r chi.Router) {

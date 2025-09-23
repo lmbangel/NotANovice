@@ -157,6 +157,81 @@ func (q *Queries) GetAttemptsByUserID(ctx context.Context, userID int64) ([]Atte
 	return items, nil
 }
 
+const getLeaderBoard = `-- name: GetLeaderBoard :many
+SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated FROM 
+leader_board l
+Left Join users u ON u.id = l.user_id
+`
+
+type GetLeaderBoardRow struct {
+	Username    sql.NullString `json:"username"`
+	Email       sql.NullString `json:"email"`
+	ID          int64          `json:"id"`
+	UserID      int64          `json:"user_id"`
+	TotalScore  sql.NullInt64  `json:"total_score"`
+	LastUpdated sql.NullTime   `json:"last_updated"`
+}
+
+func (q *Queries) GetLeaderBoard(ctx context.Context) ([]GetLeaderBoardRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLeaderBoard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLeaderBoardRow
+	for rows.Next() {
+		var i GetLeaderBoardRow
+		if err := rows.Scan(
+			&i.Username,
+			&i.Email,
+			&i.ID,
+			&i.UserID,
+			&i.TotalScore,
+			&i.LastUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLeaderBoardByUserID = `-- name: GetLeaderBoardByUserID :one
+SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated FROM 
+leader_board l
+Left Join users u ON u.id = l.user_id
+WHERE l.user_id = ?
+`
+
+type GetLeaderBoardByUserIDRow struct {
+	Username    sql.NullString `json:"username"`
+	Email       sql.NullString `json:"email"`
+	ID          int64          `json:"id"`
+	UserID      int64          `json:"user_id"`
+	TotalScore  sql.NullInt64  `json:"total_score"`
+	LastUpdated sql.NullTime   `json:"last_updated"`
+}
+
+func (q *Queries) GetLeaderBoardByUserID(ctx context.Context, userID int64) (GetLeaderBoardByUserIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getLeaderBoardByUserID, userID)
+	var i GetLeaderBoardByUserIDRow
+	err := row.Scan(
+		&i.Username,
+		&i.Email,
+		&i.ID,
+		&i.UserID,
+		&i.TotalScore,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
 const getQuestion = `-- name: GetQuestion :one
 SELECT id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer FROM questions WHERE id = ?
 `
