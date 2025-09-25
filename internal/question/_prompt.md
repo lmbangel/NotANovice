@@ -35,4 +35,5 @@ Example output:
   "correct_answer": "B"
 }
 
-Make sure all keys are represented , i.e question, a_answer, b_answer, c_answer, d_answer, correct_answer
+NB: Make sure all keys are represented , i.e question, a_answer, b_answer, c_answer, d_answer and correct_answer. 
+NB: Always make sure the correctedf answer is represented.

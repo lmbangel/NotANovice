@@ -39,7 +39,7 @@ func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Quest
 
 	sysPrompt := string(data)
 	o := agents.Ollama{
-		Url: "http://localhost:11434/api/generate",
+		Url: os.Getenv("OLLAMA_URL") + "/api/generate",
 		Request: &agents.Request{
 			Model:  "llama3.2:latest",
 			Prompt: sysPrompt,
