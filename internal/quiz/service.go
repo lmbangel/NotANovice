@@ -23,3 +23,6 @@ func (s *QuizService) GetQuizByID(ctx context.Context, id int64) (*Quiz, error) 
 func (s *QuizService) GetQuizOfTheDay(ctx context.Context) (*Quiz, error) {
 	return s.repo.GetQuizOfTheDay(ctx)
 }
+func (s *QuizService) CreateNewQuiz(ctx context.Context, params CreateNewQuizParams) (*Quiz, error) {
+	return s.repo.CreateNewQuiz(ctx, params)
+}

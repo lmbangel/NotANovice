@@ -33,9 +33,19 @@ func (r *sqliteQuizRepository) GetQuizByID(ctx context.Context, id int64) (*Quiz
 	}
 	return fmtQuiz(qz), nil
 }
+
 func (r *sqliteQuizRepository) GetQuizOfTheDay(ctx context.Context) (*Quiz, error) {
 	q := db.New(r.db)
 	qz, err := q.GetQuizOfTheDay(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return fmtQuiz(qz), nil
+}
+func (r *sqliteQuizRepository) CreateNewQuiz(ctx context.Context, params CreateNewQuizParams) (*Quiz, error) {
+	q := db.New(r.db)
+
+	qz, err := q.CreateNewQuiz(ctx, db.CreateNewQuizParams{QID: params.QID, AID: params.AID})
 	if err != nil {
 		return nil, err
 	}

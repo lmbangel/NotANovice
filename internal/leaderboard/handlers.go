@@ -40,7 +40,7 @@ func (h *LeaderBoardHandler) HandleGetLeaderBoardUserID(w http.ResponseWriter, r
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusNotFound)
 			json.NewEncoder(w).Encode(map[string]string{"Message": "No record found"})
 			return
 		}

@@ -10,10 +10,42 @@ import (
 	"database/sql"
 )
 
+const createNewQuiz = `-- name: CreateNewQuiz :one
+INSERT INTO
+    quiz (q_id, a_id, date)
+VALUES (?, ?, Date("now")) RETURNING id, q_id, a_id, date, is_active, options_json
+`
+
+type CreateNewQuizParams struct {
+	QID int64 `json:"q_id"`
+	AID int64 `json:"a_id"`
+}
+
+func (q *Queries) CreateNewQuiz(ctx context.Context, arg CreateNewQuizParams) (Quiz, error) {
+	row := q.db.QueryRowContext(ctx, createNewQuiz, arg.QID, arg.AID)
+	var i Quiz
+	err := row.Scan(
+		&i.ID,
+		&i.QID,
+		&i.AID,
+		&i.Date,
+		&i.IsActive,
+		&i.OptionsJson,
+	)
+	return i, err
+}
+
 const createQuestion = `-- name: CreateQuestion :one
-INSERT INTO questions (question, correct_answer, a_answer, b_answer, c_answer, d_answer)
-VALUES (?, ?, ?, ?, ?, ?)
-RETURNING id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer
+INSERT INTO
+    questions (
+        question,
+        correct_answer,
+        a_answer,
+        b_answer,
+        c_answer,
+        d_answer
+    )
+VALUES (?, ?, ?, ?, ?, ?) RETURNING id, question, correct_answer, timestamp, is_active, a_answer, b_answer, c_answer, d_answer
 `
 
 type CreateQuestionParams struct {
@@ -50,8 +82,7 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, email) VALUES (?, ?)
-RETURNING id, username, email, timestamp
+INSERT INTO users (username, email) VALUES (?, ?) RETURNING id, username, email, timestamp
 `
 
 type CreateUserParams struct {
@@ -158,9 +189,9 @@ func (q *Queries) GetAttemptsByUserID(ctx context.Context, userID int64) ([]Atte
 }
 
 const getLeaderBoard = `-- name: GetLeaderBoard :many
-SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated FROM 
-leader_board l
-Left Join users u ON u.id = l.user_id
+SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated
+FROM leader_board l
+    Left Join users u ON u.id = l.user_id
 `
 
 type GetLeaderBoardRow struct {
@@ -203,10 +234,11 @@ func (q *Queries) GetLeaderBoard(ctx context.Context) ([]GetLeaderBoardRow, erro
 }
 
 const getLeaderBoardByUserID = `-- name: GetLeaderBoardByUserID :one
-SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated FROM 
-leader_board l
-Left Join users u ON u.id = l.user_id
-WHERE l.user_id = ?
+SELECT u.username, u.email, l.id, l.user_id, l.total_score, l.last_updated
+FROM leader_board l
+    Left Join users u ON u.id = l.user_id
+WHERE
+    l.user_id = ?
 `
 
 type GetLeaderBoardByUserIDRow struct {
@@ -291,10 +323,11 @@ func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
 }
 
 const getQuizByID = `-- name: GetQuizByID :one
-SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
-FROM quiz 
-LEFT JOIN questions on questions.id = quiz.q_id 
-WHERE quiz.id = ?
+SELECT quiz.id as quiz_id, questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer
+FROM quiz
+    LEFT JOIN questions on questions.id = quiz.q_id
+WHERE
+    quiz.id = ?
 `
 
 type GetQuizByIDRow struct {
@@ -329,10 +362,11 @@ func (q *Queries) GetQuizByID(ctx context.Context, id int64) (GetQuizByIDRow, er
 }
 
 const getQuizOfTheDay = `-- name: GetQuizOfTheDay :one
-SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
-FROM quiz 
-LEFT JOIN questions on questions.id = quiz.q_id
-WHERE DATE(quiz.date) = DATE('now')
+SELECT quiz.id as quiz_id, questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer
+FROM quiz
+    LEFT JOIN questions on questions.id = quiz.q_id
+WHERE
+    DATE(quiz.date) = DATE('now')
 `
 
 type GetQuizOfTheDayRow struct {
@@ -367,10 +401,11 @@ func (q *Queries) GetQuizOfTheDay(ctx context.Context) (GetQuizOfTheDayRow, erro
 }
 
 const getQuizes = `-- name: GetQuizes :many
-SELECT quiz.id as quiz_id , questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer 
-FROM quiz 
-LEFT JOIN questions on questions.id = quiz.q_id
-WHERE quiz.is_active = 1
+SELECT quiz.id as quiz_id, questions.id, questions.question, questions.correct_answer, questions.timestamp, questions.is_active, questions.a_answer, questions.b_answer, questions.c_answer, questions.d_answer
+FROM quiz
+    LEFT JOIN questions on questions.id = quiz.q_id
+WHERE
+    quiz.is_active = 1
 `
 
 type GetQuizesRow struct {
@@ -485,9 +520,14 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 }
 
 const recordAttempt = `-- name: RecordAttempt :one
-INSERT INTO attempts (user_id, quiz_id, answer, is_correct)
-VALUES (?, ?, ?, ?)
-RETURNING id, user_id, quiz_id, answer, is_correct, timestamp
+INSERT INTO
+    attempts (
+        user_id,
+        quiz_id,
+        answer,
+        is_correct
+    )
+VALUES (?, ?, ?, ?) RETURNING id, user_id, quiz_id, answer, is_correct, timestamp
 `
 
 type RecordAttemptParams struct {
@@ -517,10 +557,13 @@ func (q *Queries) RecordAttempt(ctx context.Context, arg RecordAttemptParams) (A
 }
 
 const updateLeaderboard = `-- name: UpdateLeaderboard :exec
-INSERT INTO leader_board (user_id, total_score)
+INSERT INTO
+    leader_board (user_id, total_score)
 VALUES (?, ?)
-ON CONFLICT(user_id) DO UPDATE
-SET total_score = total_score + excluded.total_score,
+ON CONFLICT (user_id) DO
+UPDATE
+SET
+    total_score = total_score + excluded.total_score,
     last_updated = CURRENT_TIMESTAMP
 `
 
@@ -535,8 +578,7 @@ func (q *Queries) UpdateLeaderboard(ctx context.Context, arg UpdateLeaderboardPa
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE users SET username = ?, email = ? where id = ?
-RETURNING id, username, email, timestamp
+UPDATE users SET username = ?, email = ? where id = ? RETURNING id, username, email, timestamp
 `
 
 type UpdateUserParams struct {

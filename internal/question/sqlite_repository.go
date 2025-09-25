@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/lmbangel/_novice/internal/db"
+	"github.com/lmbangel/_novice/internal/quiz"
 	"github.com/lmbangel/_novice/pkg/agents"
 )
 
@@ -68,6 +69,11 @@ func (r *sqliteQuestionRepository) GenerateQuestion(ctx context.Context) (*Quest
 		CAnswer:       newQuestion.CAnswer,
 		DAnswer:       newQuestion.DAnswer,
 	})
+
+	quizRepo := quiz.NewSQLiteQuizRepository(r.db)
+	if _, err := quizRepo.CreateNewQuiz(ctx, quiz.CreateNewQuizParams{QID: qsn.ID, AID: qsn.ID}); err != nil {
+		return nil, err
+	}
 
 	return fmtQuesion(qsn), nil
 }

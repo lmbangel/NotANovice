@@ -11,6 +11,12 @@ type QuizRepository interface {
 	GetQuizes(ctx context.Context) ([]Quiz, error)
 	GetQuizByID(ctx context.Context, id int64) (*Quiz, error)
 	GetQuizOfTheDay(ctx context.Context) (*Quiz, error)
+	CreateNewQuiz(ctx context.Context, params CreateNewQuizParams) (*Quiz, error)
+}
+
+type CreateNewQuizParams struct {
+	QID int64 `json:"q_id"`
+	AID int64 `json:"a_id"`
 }
 
 type Quiz struct {
@@ -45,21 +51,6 @@ func fmtQuizes(q []db.GetQuizesRow) []Quiz {
 	}
 	return qzs
 }
-
-//func fmtQuiz(qui db.GetQuizOfTheDayRow) *Quiz {
-//	return &Quiz{
-//		QuizID:        qui.QuizID,
-//		ID:            qui.ID,
-//		Question:      qui.Question,
-//		CorrectAnswer: qui.CorrectAnswer,
-//		Timestamp:     qui.Timestamp,
-//		IsActive:      qui.IsActive,
-//		AAnswer:       qui.AAnswer,
-//		BAnswer:       qui.BAnswer,
-//		CAnswer:       qui.CAnswer,
-//		DAnswer:       qui.DAnswer,
-//	}
-//}
 
 func fmtQuiz(qui any) *Quiz {
 	switch q := qui.(type) {

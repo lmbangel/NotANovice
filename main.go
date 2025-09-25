@@ -44,12 +44,10 @@ func main() {
 				w.Header().Set("Access-Control-Allow-Origin", "*")
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
 				if r.Method == "OPTIONS" {
 					w.WriteHeader(http.StatusOK)
 					return
 				}
-
 				next.ServeHTTP(w, r)
 			})
 		})
@@ -70,7 +68,7 @@ func main() {
 
 		r.Group(func(r chi.Router) {
 			aRepo := attempt.NewSQLiteAttemptRepository(dbConn)
-				qRepo := quiz.NewSQLiteQuizRepository(dbConn)
+			qRepo := quiz.NewSQLiteQuizRepository(dbConn)
 			qService := quiz.NewQuizService(qRepo)
 			aService := attempt.NewAttemptService(aRepo, qService)
 			h := &attempt.AttemptHandler{AttemptService: aService}
