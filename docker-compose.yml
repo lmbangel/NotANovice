@@ -27,6 +27,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+  quiz-agent-service:
+    build: ./services/quiz_agent
+    ports:
+      - "50052:50052"
 volumes:
   ollama:
   quiz_data:

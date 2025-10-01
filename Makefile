@@ -1,4 +1,13 @@
-.PHONY: serve goose-up goose-down goose-status build up down stop clean
+.PHONY: serve goose-up goose-down goose-status build up down stop clean clean-proto
+
+
+proto-python:
+	@cd services/quiz_agent && python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. quiz.proto
+
+proto: proto-python
+
+clean-proto:
+	@rm -f python/*_pb2.py python/*_pb2_grpc.py
 
 serve: 
 	@go run main.go
@@ -26,3 +35,6 @@ stop:
 
 clean:
 	@docker compose rm -f
+	@rm -f python/*_pb2.py python/*_pb2_grpc.py
+
+run-rebuild: stop down clean build up

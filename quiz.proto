@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+
+package quiz_agent;
+
+service QuizAgentService{
+    rpc GetQuizOfTheDay(Empty) returns (Quiz);
+}
+
+message Empty{}
+
+message Quiz {
+    int64 quiz_id = 1;
+    int64 id = 2;
+    string question = 3;
+    string correct_answer = 4;
+    int64 timestamp = 5;
+    bool is_active = 6;
+    string a_answer = 7;
+    string b_answer = 8;
+    string c_answer = 9;
+    string d_answer = 10;
+}
