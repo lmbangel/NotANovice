@@ -3,5 +3,6 @@ FROM python:3.11
 WORKDIR /app
 COPY . .
 RUN pip install grpcio grpcio-tools
+RUN pip install ollama
 
 CMD ["python", "quiz-agent-server.py"]
